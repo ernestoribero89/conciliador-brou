@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conciliación Bancaria BROU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f11;
+    --surface: #17171a;
+    --border: #2a2a2f;
+    --accent: #92d051;
+    --accent-dim: rgba(146,208,81,0.12);
+    --accent-mid: rgba(146,208,81,0.25);
+    --text: #e8e8ec;
+    --muted: #6b6b78;
+    --rosa: #ff6b8a;
+    --amarillo: #f5c842;
+    --gris: #888;
+    --radius: 10px;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  header {
+    width: 100%;
+    padding: 28px 40px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  header span {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    margin-left: auto;
+  }
+
+  /* ── Main layout ── */
+  main {
+    width: 100%;
+    max-width: 720px;
+    padding: 48px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  /* ── Selector banco/moneda ── */
+  .selector-label {
+    font-size: 0.65rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .selector-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .sel-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    color: var(--muted);
+  }
+
+  .sel-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    background: var(--accent-dim);
+  }
+
+  .sel-btn.active {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  .sel-btn .bank-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .sel-btn .currency {
+    font-size: 1.1rem;
+    font-family: var(--mono);
+    font-weight: 500;
+  }
+
+  /* ── Upload zone ── */
+  .upload-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .upload-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    background: var(--surface);
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .upload-zone.has-file {
+    border-color: var(--accent);
+    border-style: solid;
+    background: var(--accent-dim);
+  }
+
+  .upload-zone input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .upload-label {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .upload-filename {
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-family: var(--mono);
+    word-break: break-all;
+  }
+
+  .upload-hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  /* ── Run button ── */
+  #btn-run {
+    background: var(--accent);
+    color: #0f0f11;
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px 32px;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #btn-run:disabled {
+    background: var(--border);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  #btn-run:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(146,208,81,0.3);
+  }
+
+  /* ── Status / log ── */
+  #status-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.8;
+    min-height: 60px;
+    display: none;
+  }
+
+  #status-box.visible { display: block; }
+
+  .log-line { display: block; }
+  .log-ok   { color: var(--accent); }
+  .log-info { color: var(--text); }
+  .log-warn { color: var(--amarillo); }
+  .log-err  { color: var(--rosa); }
+  .log-muted{ color: var(--muted); }
+
+  /* ── Results ── */
+  #results {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #results.visible { display: flex; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .result-info { flex: 1; }
+  .result-info .result-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .result-info .result-stats {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .stat-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-family: var(--mono);
+    margin-right: 4px;
+  }
+  .pill-verde  { background: rgba(146,208,81,0.15); color: var(--accent); }
+  .pill-rosa   { background: rgba(255,107,138,0.15); color: var(--rosa); }
+  .pill-gris   { background: rgba(136,136,136,0.15); color: var(--gris); }
+  .pill-yellow { background: rgba(245,200,66,0.15); color: var(--amarillo); }
+
+  .btn-dl {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .btn-dl:hover {
+    background: var(--accent);
+    color: #0f0f11;
+  }
+
+  /* ── Leyenda ── */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 14px 0 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .swatch {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ── Pyodide loader overlay ── */
+  #loader {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,15,17,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 999;
+    backdrop-filter: blur(4px);
+  }
+
+  #loader.hidden { display: none; }
+
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #loader p {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  #loader .load-sub {
+    font-size: 0.68rem;
+    color: var(--border);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 520px) {
+    .selector-grid { grid-template-columns: repeat(3, 1fr); }
+    .upload-row { grid-template-columns: 1fr; }
+    header { padding: 20px; }
+    main { padding: 28px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loader Pyodide -->
+<div id="loader">
+  <div class="spinner"></div>
+  <p>Cargando entorno Python…</p>
+  <p class="load-sub">Primera carga: ~15 segundos</p>
+</div>
+
+<header>
+  <div class="logo-dot"></div>
+  <h1>Conciliación Bancaria BROU</h1>
+  <span>BROU · SAP Business One</span>
+</header>
+
+<main>
+
+  <!-- Selector banco/moneda -->
+  <div>
+    <div class="selector-label">Cuenta a conciliar</div>
+    <div class="selector-grid">
+      <button class="sel-btn active" data-mode="USD" onclick="selectMode(this)">
+        <span class="bank-name">BROU</span>
+        <span class="currency">USD</span>
+      </button>
+      <button class="sel-btn" data-mode="UYU" onclick="selectMode(this)">
+        <span class="bank-name">BROU</span>
+        <span class="currency">UYU</span>
+      </button>
+      <button class="sel-btn" data-mode="EUR" onclick="selectMode(this)">
+        <span class="bank-name">BROU</span>
+        <span class="currency">EUR</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Upload files -->
+  <div>
+    <div class="selector-label">Archivos de entrada</div>
+    <div class="upload-row">
+      <div class="upload-zone" id="zone-sap" ondragover="onDrag(event,true,'zone-sap')" ondragleave="onDrag(event,false,'zone-sap')" ondrop="onDrop(event,'sap')">
+        <input type="file" accept=".xlsx,.xls" onchange="onFile(event,'sap')" id="input-sap">
+        <span class="upload-icon">📊</span>
+        <span class="upload-label">Archivo SAP</span>
+        <span class="upload-filename" id="name-sap">—</span>
+      </div>
+      <div class="upload-zone" id="zone-bco" ondragover="onDrag(event,true,'zone-bco')" ondragleave="onDrag(event,false,'zone-bco')" ondrop="onDrop(event,'bco')">
+        <input type="file" accept=".xlsx,.xls" onchange="onFile(event,'bco')" id="input-bco">
+        <span class="upload-icon">🏦</span>
+        <span class="upload-label">Estado de Cuenta Banco</span>
+        <span class="upload-filename" id="name-bco">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón -->
+  <button id="btn-run" disabled onclick="runConciliacion()">
+    ▶ Conciliar
+  </button>
+
+  <!-- Log -->
+  <div id="status-box"></div>
+
+  <!-- Resultados -->
+  <div id="results">
+    <div class="result-card" id="card-sap">
+      <div class="result-info">
+        <div class="result-title">SAP Conciliado</div>
+        <div class="result-stats" id="stats-sap">—</div>
+      </div>
+      <a class="btn-dl" id="dl-sap" href="#" download="CONCILIACION_SAP.xlsx">Descargar</a>
+    </div>
+    <div class="result-card" id="card-bco">
+      <div class="result-info">
+        <div class="result-title">Banco Conciliado</div>
+        <div class="result-stats" id="stats-bco">—</div>
+      </div>
+      <a class="btn-dl" id="dl-bco" href="#" download="CONCILIACION_BANCO.xlsx">Descargar</a>
+    </div>
+  </div>
+
+  <!-- Leyenda -->
+  <div class="legend">
+    <div class="legend-item"><div class="swatch" style="background:#92d051"></div>Verde — matcheado</div>
+    <div class="legend-item"><div class="swatch" style="background:#f5c842"></div>Amarillo — comisión</div>
+    <div class="legend-item"><div class="swatch" style="background:#ff9999"></div>Rosa — sin match</div>
+    <div class="legend-item"><div class="swatch" style="background:#888"></div>Gris — anulado SAP</div>
+  </div>
+
+</main>
+
+<!-- Pyodide -->
+<script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
+<script>
+// ── Estado ───────────────────────────────────────────────────────────────────
+let pyodide = null;
+let files = { sap: null, bco: null };
+let currentMode = 'USD';
+
+// ── Init Pyodide ──────────────────────────────────────────────────────────────
+async function initPyodide() {
+  try {
+    pyodide = await loadPyodide();
+    await pyodide.loadPackage(['micropip', 'pandas', 'xlrd']);
+    const micropip = pyodide.pyimport('micropip');
+    await micropip.install(['openpyxl']);
+    document.getElementById('loader').classList.add('hidden');
+    updateBtn();
+  } catch(e) {
+    document.getElementById('loader').querySelector('p').textContent = 'Error al cargar: ' + e.message;
+  }
+}
+initPyodide();
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+function selectMode(el) {
+  document.querySelectorAll('.sel-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentMode = el.dataset.mode;
+  clearResults();
+}
+
+function onDrag(e, over, zoneId) {
+  e.preventDefault();
+  document.getElementById(zoneId).classList.toggle('drag-over', over);
+}
+
+function onDrop(e, key) {
+  e.preventDefault();
+  const zoneId = key === 'sap' ? 'zone-sap' : 'zone-bco';
+  document.getElementById(zoneId).classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) setFile(key, f);
+}
+
+function onFile(e, key) {
+  const f = e.target.files[0];
+  if (f) setFile(key, f);
+}
+
+function setFile(key, f) {
+  files[key] = f;
+  const nameEl = document.getElementById('name-' + key);
+  const zoneEl = document.getElementById('zone-' + key);
+  nameEl.textContent = f.name;
+  zoneEl.classList.add('has-file');
+  updateBtn();
+  clearResults();
+}
+
+function updateBtn() {
+  const btn = document.getElementById('btn-run');
+  btn.disabled = !(pyodide && files.sap && files.bco);
+}
+
+function clearResults() {
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('status-box').classList.remove('visible');
+  document.getElementById('status-box').innerHTML = '';
+}
+
+function log(msg, cls='log-info') {
+  const box = document.getElementById('status-box');
+  box.classList.add('visible');
+  const line = document.createElement('span');
+  line.className = 'log-line ' + cls;
+  line.textContent = msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ── Leer archivo como bytes ───────────────────────────────────────────────────
+function readFileBytes(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(new Uint8Array(e.target.result));
+    r.onerror = rej;
+    r.readAsArrayBuffer(file);
+  });
+}
+
+// ── Bytes → data URL para descarga ───────────────────────────────────────────
+function bytesToDataURL(bytes) {
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' + btoa(bin);
+}
+
+// ── Run ───────────────────────────────────────────────────────────────────────
+async function runConciliacion() {
+  const btn = document.getElementById('btn-run');
+  btn.disabled = true;
+  btn.textContent = '⏳ Procesando…';
+  clearResults();
+  log('Leyendo archivos…', 'log-muted');
+
+  try {
+    const sapBytes = await readFileBytes(files.sap);
+    const bcoBytes = await readFileBytes(files.bco);
+
+    // Pasar bytes a Python
+    pyodide.globals.set('sap_bytes', sapBytes);
+    pyodide.globals.set('bco_bytes', bcoBytes);
+    pyodide.globals.set('mode', currentMode);
+
+    log(`Modo: BROU ${currentMode}`, 'log-muted');
+    log('Ejecutando conciliación…', 'log-muted');
+
+    const result = await pyodide.runPythonAsync(PYTHON_CODE);
+    const res = result.toJs({ dict_converter: Object.fromEntries });
+
+    if (res.error) {
+      log('ERROR: ' + res.error, 'log-err');
+    } else {
+      log(`SAP:   ${res.sap_verde} matcheados  |  ${res.sap_rosa} sin match  |  ${res.sap_gris} gris`, 'log-ok');
+      log(`Banco: ${res.bco_verde} matcheados  |  ${res.bco_amarillo} comisiones  |  ${res.bco_rosa} sin match`, 'log-ok');
+      if (res.total_com > 0) log(`Total comisiones: ${res.total_com.toFixed(2)} ${currentMode}`, 'log-warn');
+      if (res.sin_match_sap && res.sin_match_sap.length > 0) {
+        log('', 'log-muted');
+        log('SAP sin match:', 'log-warn');
+        res.sin_match_sap.forEach(l => log('  ' + l, 'log-muted'));
+      }
+      if (res.sin_match_bco && res.sin_match_bco.length > 0) {
+        log('', 'log-muted');
+        log('Banco sin match:', 'log-warn');
+        res.sin_match_bco.forEach(l => log('  ' + l, 'log-muted'));
+      }
+
+      // Descargas
+      const sapURL = bytesToDataURL(res.sap_out);
+      const bcoURL = bytesToDataURL(res.bco_out);
+
+      document.getElementById('dl-sap').href = sapURL;
+      document.getElementById('dl-sap').download = `CONCILIACION_SAP_${currentMode}.xlsx`;
+      document.getElementById('dl-bco').href = bcoURL;
+      document.getElementById('dl-bco').download = `CONCILIACION_BANCO_${currentMode}.xlsx`;
+
+      document.getElementById('stats-sap').innerHTML =
+        pill(res.sap_verde, 'verde') + pill(res.sap_rosa, 'rosa') + pill(res.sap_gris, 'gris');
+      document.getElementById('stats-bco').innerHTML =
+        pill(res.bco_verde, 'verde') + pill(res.bco_amarillo, 'yellow') + pill(res.bco_rosa, 'rosa');
+
+      document.getElementById('results').classList.add('visible');
+    }
+  } catch(e) {
+    log('Error inesperado: ' + e.message, 'log-err');
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Conciliar';
+  updateBtn();
+}
+
+function pill(n, color) {
+  const labels = { verde: 'verde', rosa: 'rosa', gris: 'gris', yellow: 'amarillo' };
+  return `<span class="stat-pill pill-${color}">${n} ${labels[color]}</span>`;
+}
+
+// ── Código Python incrustado ──────────────────────────────────────────────────
+const PYTHON_CODE = `
+
+
+
+
+
+
+
+
+import re, unicodedata, io
+import pandas as pd
+from collections import defaultdict
+from itertools import combinations
+from datetime import timedelta
+from openpyxl import load_workbook, Workbook
+from openpyxl.styles import PatternFill
+import js
+
+# Colores
+VERDE    = PatternFill('solid', fgColor='92D051')
+AMARILLO = PatternFill('solid', fgColor='FFFF00')
+ROSA     = PatternFill('solid', fgColor='FF9999')
+GRIS     = PatternFill('solid', fgColor='BFBFBF')
+TOL      = 0.9
+DIAS     = 3
+DATE_FMT = 'DD/MM/YYYY'
+
+def norm(s):
+    return unicodedata.normalize('NFD', str(s)).encode('ascii','ignore').decode('ascii').lower()
+
+def get_wiz(c):
+    m = re.search(r'(Wiz\d{8}n\d+)', str(c), re.IGNORECASE)
+    return m.group(1) if m else None
+
+def has_wiz(v):
+    return v is not None and not (isinstance(v, float) and pd.isna(v))
+
+def is_comision(d):
+    n = norm(d)
+    return 'comision' in n or 'apertura coe' in n or 'spi - comis' in n
+
+def is_dif_cambio(c):
+    cl = norm(c)
+    return ('diferencia' in cl or ' dif' in cl) and ('cambio' in cl or 'tipo' in cl)
+
+def is_sueldo_sap(c):
+    if not isinstance(c, str): return False
+    return any(x in c.lower() for x in ['sueldo', 'salario'])
+
+def is_sueldo_bco(d):
+    if not isinstance(d, str): return False
+    return any(x in d.lower() for x in ['sueldo', 'salario', 'pago ch. ventanilla'])
+
+def is_ente_sap(c):
+    if not isinstance(c, str): return False
+    return any(x in c.upper() for x in ['ANTEL','BPS','BSE','UTE','OSE','MGAP'])
+
+def wiz_fecha(w):
+    m = re.search(r'Wiz(\d{4})(\d{2})(\d{2})', w, re.IGNORECASE)
+    if m: return pd.Timestamp(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    return None
+
+cancel_re = re.compile(
+    r'(?:cancelar|anular)\s+entrada\s+para\s+n[u\u00fa]mero\s+de\s+pago(?:\s+recibido)?\s+(\S+)',
+    re.IGNORECASE
+)
+
+def bytes_to_bytesio(b):
+    return io.BytesIO(bytes(b.to_py()))
+
+def wb_to_bytes(wb):
+    buf = io.BytesIO()
+    wb.save(buf)
+    return list(buf.getvalue())
+
+def _find_data_start(raw, mode='fecha'):
+    for i in range(min(30, len(raw))):
+        val = str(raw.iloc[i, 0]).strip().lower()
+        if mode == 'header' and val == 'fecha':
+            return i + 1
+        if mode == 'fecha':
+            try:
+                f = pd.to_datetime(raw.iloc[i, 0], dayfirst=True, errors='coerce')
+                if pd.notna(f): return i
+            except: pass
+    return 2
+
+# ------------------- USD -------------------------------------------------------
+VERDE_USD    = PatternFill('solid', fgColor='92D051')
+AMARILLO_USD = PatternFill('solid', fgColor='FFFF00')
+ROSA_USD     = PatternFill('solid', fgColor='FF9999')
+GRIS_USD     = PatternFill('solid', fgColor='BFBFBF')
+TOL_USD = 0.9
+
+wiz_re_usd    = re.compile(r'(Wiz\d{8}n\d+)', re.IGNORECASE)
+cancel_re_usd = re.compile(
+    r'(?:cancelar|anular)\s+entrada\s+para\s+n[u\u00fa]mero\s+de\s+pago(?:\s+recibido)?\s+(\S+)',
+    re.IGNORECASE
+)
+
+def norm_usd(s):
+    return unicodedata.normalize('NFD', str(s)).encode('ascii', 'ignore').decode('ascii').lower()
+
+def get_wiz_usd(c):
+    m = wiz_re_usd.search(str(c))
+    return m.group(1) if m else None
+
+def has_wiz_usd(v):
+    return v is not None and not (isinstance(v, float) and pd.isna(v))
+
+def is_comision_usd(d):
+    n = norm_usd(d)
+    return 'comision' in n or 'apertura coe' in n
+
+def is_dif_cambio_usd(c):
+    cl = norm_usd(c)
+    return ('diferencia' in cl or ' dif' in cl) and ('cambio' in cl or 'tipo' in cl)
+
+def wiz_fecha_usd(w):
+    m = re.search(r'Wiz(\d{4})(\d{2})(\d{2})', w, re.IGNORECASE)
+    if m: return pd.Timestamp(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    return None
+
+def cargar_sap_usd(bio):
+    try: raw = pd.read_excel(bio, header=None)
+    except: bio.seek(0); raw = pd.read_excel(bio, header=None, engine='xlrd')
+    start = _find_data_start(raw, 'fecha')
+    df = raw.iloc[start:, [0, 2, 6, 16]].copy().reset_index(drop=False)
+    df.columns = ['orig_idx', 'fecha', 'ndoc', 'comentarios', 'importe']
+    df['fecha']   = pd.to_datetime(df['fecha'], dayfirst=True, errors='coerce')
+    df['importe'] = pd.to_numeric(df['importe'], errors='coerce')
+    df = df.dropna(subset=['fecha', 'importe'])
+    df['wiz']           = df['comentarios'].apply(get_wiz_usd)
+    df['es_dif_cambio'] = df['comentarios'].apply(is_dif_cambio_usd)
+    return df
+
+def cargar_banco_usd(bio):
+    try: raw = pd.read_excel(bio, header=None, dtype=str)
+    except: bio.seek(0); raw = pd.read_excel(bio, header=None, dtype=str, engine='xlrd')
+    bco = []
+    start = _find_data_start(raw, 'header')
+    for i in range(start, len(raw)):
+        row = raw.iloc[i]
+        f = pd.to_datetime(row.iloc[0], dayfirst=True, errors='coerce')
+        if pd.isna(f): continue
+        desc = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ''
+        if 'saldo' in desc.lower(): continue
+        try: deb = float(row.iloc[7])
+        except: deb = 0.0
+        try: cre = float(row.iloc[8])
+        except: cre = 0.0
+        if deb > 0: imp = -deb
+        elif cre > 0: imp = cre
+        else: continue
+        bco.append(dict(orig_idx=i, fecha=f, descripcion=desc, debito=deb, credito=cre, importe=imp,
+                        es_comision=is_comision_usd(desc)))
+    return pd.DataFrame(bco)
+
+def conciliar_usd(sap, banco):
+    sap_col = {}; bco_col = {}; used_bco = set()
+
+    # 1. Anulados + dif cambio -> GRIS
+    anulados = set()
+    for _, row in sap.iterrows():
+        if row['es_dif_cambio']: anulados.add(row['orig_idx']); continue
+        m = cancel_re_usd.search(str(row['comentarios']))
+        if m:
+            anulados.add(row['orig_idx'])
+            doc = m.group(1).strip()
+            for oidx in sap[sap['ndoc'].astype(str).str.contains(doc, na=False)]['orig_idx']:
+                anulados.add(oidx)
+    for oidx in anulados: sap_col[oidx] = GRIS_USD
+
+    # 2. Wiz individual
+    wiz_groups = defaultdict(list)
+    for _, row in sap.iterrows():
+        if row['orig_idx'] in anulados: continue
+        if has_wiz_usd(row['wiz']): wiz_groups[row['wiz']].append(row)
+
+    wiz_matched = set()
+    for wiz_code, rows in wiz_groups.items():
+        total = round(sum(r['importe'] for r in rows), 2)
+        fs = wiz_fecha_usd(wiz_code) or rows[0]['fecha']
+        for _, brow in banco.iterrows():
+            if brow['orig_idx'] in used_bco: continue
+            if abs(abs(round(brow['importe'],2)) - abs(total)) <= TOL_USD and abs((brow['fecha']-fs).days) <= 3:
+                for r in rows: sap_col[r['orig_idx']] = VERDE_USD
+                bco_col[brow['orig_idx']] = VERDE_USD
+                used_bco.add(brow['orig_idx']); wiz_matched.add(wiz_code); break
+
+    # 3. Wiz combinado
+    wiz_sin = {w: rows for w, rows in wiz_groups.items() if w not in wiz_matched}
+    by_fd = defaultdict(list)
+    for w, rows in wiz_sin.items():
+        fd = wiz_fecha_usd(w)
+        if fd: by_fd[fd].append((w, rows))
+    for fd, grupo in by_fd.items():
+        all_rows = [r for _, rows in grupo for r in rows if r['orig_idx'] not in sap_col]
+        if not all_rows: continue
+        total = round(sum(r['importe'] for r in all_rows), 2)
+        for _, brow in banco.iterrows():
+            if brow['orig_idx'] in used_bco: continue
+            if abs(abs(round(brow['importe'],2)) - abs(total)) <= TOL_USD and abs((brow['fecha']-fd).days) <= 3:
+                for r in all_rows: sap_col[r['orig_idx']] = VERDE_USD
+                bco_col[brow['orig_idx']] = VERDE_USD
+                used_bco.add(brow['orig_idx']); break
+
+    # 4. Wiz + anulado + reemision
+    for wiz_code, rows in wiz_groups.items():
+        if all(r['orig_idx'] in sap_col for r in rows): continue
+        fd = wiz_fecha_usd(wiz_code) or rows[0]['fecha']
+        docs_grupo = {re.sub(r'\D', '', str(r['ndoc'])) for r in rows}
+        anulados_ref = []
+        for _, row_c in sap.iterrows():
+            if row_c['orig_idx'] not in anulados: continue
+            m2 = cancel_re_usd.search(str(row_c['comentarios']))
+            if not m2: continue
+            doc = m2.group(1).strip()
+            if re.sub(r'\D','',doc) in docs_grupo:
+                orig = next((r for r in rows if re.sub(r'\D','',str(r['ndoc']))==re.sub(r'\D','',doc)),None)
+                if orig: anulados_ref.append((row_c, orig))
+        if not anulados_ref: continue
+        anulados_orig = {orig['orig_idx'] for _, orig in anulados_ref}
+        total_neto = round(sum(r['importe'] for r in rows if r['orig_idx'] not in anulados_orig), 2)
+        for _, row_s in sap.iterrows():
+            if row_s['orig_idx'] in sap_col: continue
+            if has_wiz_usd(row_s['wiz']): continue
+            if abs((row_s['fecha'] - fd).days) > 3: continue
+            total_real = round(total_neto + row_s['importe'], 2)
+            for _, brow in banco.iterrows():
+                if brow['orig_idx'] in used_bco: continue
+                if abs(abs(round(brow['importe'],2)) - abs(total_real)) <= TOL_USD and abs((brow['fecha']-fd).days) <= 3:
+                    for r in rows: sap_col[r['orig_idx']] = VERDE_USD
+                    for row_c, _ in anulados_ref: sap_col[row_c['orig_idx']] = VERDE_USD
+                    sap_col[row_s['orig_idx']] = VERDE_USD
+                    bco_col[brow['orig_idx']] = VERDE_USD
+                    used_bco.add(brow['orig_idx']); break
+            else: continue
+            break
+
+    # 5. Inverso Wiz
+    bco_groups = defaultdict(list)
+    for _, brow in banco.iterrows():
+        if brow['es_comision']: continue
+        bco_groups[(brow['fecha'].date(), str(brow['descripcion']).strip())].append(brow)
+    for _, row in sap.iterrows():
+        oidx = row['orig_idx']
+        if oidx in sap_col or has_wiz_usd(row['wiz']): continue
+        sap_imp = round(row['importe'],2); sap_date = row['fecha'].date()
+        best_color = None; best_rows = None; best_delta = 999
+        for delta in range(4):
+            for sign in ([0] if delta==0 else [1,-1]):
+                check = sap_date + timedelta(days=delta*sign)
+                for (bd,bdesc), brows in bco_groups.items():
+                    if bd != check: continue
+                    avail = [r for r in brows if r['orig_idx'] not in used_bco]
+                    if len(avail) < 2: continue
+                    for n in range(2, len(avail)+1):
+                        for combo in combinations(avail, n):
+                            total = round(sum(r['importe'] for r in combo),2)
+                            if abs(abs(total) - abs(sap_imp)) <= TOL_USD:
+                                d = abs((check-sap_date).days)
+                                if d < best_delta: best_delta=d; best_rows=combo; best_color=VERDE_USD
+        if best_rows:
+            sap_col[oidx] = best_color
+            for br in best_rows: bco_col[br['orig_idx']] = best_color; used_bco.add(br['orig_idx'])
+
+    # 6. Individual 1:1
+    for _, row in sap.iterrows():
+        oidx = row['orig_idx']
+        if oidx in sap_col or has_wiz_usd(row['wiz']): continue
+        sap_imp = round(row['importe'],2); sap_date = row['fecha'].date()
+        best = None; best_delta = 999
+        for _, brow in banco.iterrows():
+            if brow['orig_idx'] in used_bco or brow['es_comision']: continue
+            if abs(abs(round(brow['importe'],2)) - abs(sap_imp)) <= TOL_USD:
+                delta = abs((brow['fecha'].date() - sap_date).days)
+                if delta <= 3 and delta < best_delta: best=brow; best_delta=delta
+        if best is not None:
+            sap_col[oidx] = VERDE_USD; bco_col[best['orig_idx']] = VERDE_USD; used_bco.add(best['orig_idx'])
+
+    # 7. Comisiones
+    for _, brow in banco.iterrows():
+        if brow['es_comision'] and brow['orig_idx'] not in used_bco:
+            bco_col[brow['orig_idx']] = AMARILLO_USD; used_bco.add(brow['orig_idx'])
+
+    # 8. Resto rosa
+    for _, row in sap.iterrows():
+        if row['orig_idx'] not in sap_col: sap_col[row['orig_idx']] = ROSA_USD
+    for _, brow in banco.iterrows():
+        if brow['orig_idx'] not in bco_col: bco_col[brow['orig_idx']] = ROSA_USD
+
+    return sap_col, bco_col
+
+def escribir_sap_usd(sap, sap_col):
+    wb = Workbook(); ws = wb.active; ws.title = 'Conciliacion'
+    ws.append(['Fcha Contab.', 'N\u00ba Doc', 'Comentarios', 'Sdo vencido USD'])
+    ws.append(['Activos', '', 'Brou C/C U$S', ''])
+    for _, row in sap.iterrows():
+        ws.append([row['fecha'], row['ndoc'], row['comentarios'], row['importe']])
+        er = ws.max_row
+        ws.cell(row=er, column=4).fill = sap_col.get(row['orig_idx'], ROSA_USD)
+        ws.cell(row=er, column=1).number_format = DATE_FMT
+    ws.column_dimensions['A'].width = 14; ws.column_dimensions['B'].width = 12
+    ws.column_dimensions['C'].width = 55; ws.column_dimensions['D'].width = 16
+    return wb_to_bytes(wb)
+
+def escribir_banco_usd(banco, bco_col):
+    wb = Workbook(); ws = wb.active; ws.title = 'Banco'
+    ws.append(['Fecha', 'Descripcion', '', '', '', '', '', 'Debito', 'Credito'])
+    tc = []
+    for _, brow in banco.iterrows():
+        deb = brow['debito'] if brow['debito'] > 0 else ''
+        cre = brow['credito'] if brow['credito'] > 0 else ''
+        ws.append([brow['fecha'], brow['descripcion'], '', '', '', '', '', deb, cre])
+        er = ws.max_row
+        fill = bco_col.get(brow['orig_idx'])
+        if fill:
+            col = 9 if brow['credito'] > 0 else 8
+            ws.cell(row=er, column=col).fill = fill
+        ws.cell(row=er, column=1).number_format = DATE_FMT
+        if fill == AMARILLO_USD: tc.append(abs(brow['importe']))
+    if tc:
+        lr = ws.max_row + 2
+        ws.cell(row=lr, column=1, value='TOTAL COMISIONES').fill = AMARILLO_USD
+        ws.cell(row=lr, column=8, value=round(sum(tc),2)).fill = AMARILLO_USD
+    ws.column_dimensions['A'].width = 14; ws.column_dimensions['B'].width = 45
+    ws.column_dimensions['H'].width = 14; ws.column_dimensions['I'].width = 14
+    return wb_to_bytes(wb)
+
+# ------------------- UYU -------------------------------------------------------
+# Helpers UYU (del script original)
+def nan_safe_u(v): return v is None or (isinstance(v, float) and pd.isna(v))
+def to_float_u(v):
+    try: return float(v)
+    except: return None
+def extract_wiz_u(s):
+    if not isinstance(s, str): return None
+    m = re.search(r'(Wiz\d{8}n\d+)', s, re.IGNORECASE)
+    return m.group(1) if m else None
+def is_comision_u(d):
+    if not isinstance(d, str): return False
+    n = norm(d)
+    return 'comision' in n or 'apertura coe' in n
+def is_dif_cambio_u(c):
+    if not isinstance(c, str): return False
+    cl = c.lower()
+    return ('diferencia' in cl or 'dif' in cl) and ('cambio' in cl or 'tipo' in cl)
+def is_sueldo_sap_u(c):
+    if not isinstance(c, str): return False
+    return any(x in c.lower() for x in ['sueldo', 'salario'])
+def is_sueldo_bco_u(d):
+    if not isinstance(d, str): return False
+    return any(x in d.lower() for x in ['sueldo', 'salario', 'pago ch. ventanilla'])
+def is_ente_sap_u(c):
+    if not isinstance(c, str): return False
+    return any(x in c.upper() for x in ['ANTEL','BPS','BSE','UTE','OSE','MGAP'])
+def wiz_date_u(w):
+    m = re.search(r'Wiz(\d{4})(\d{2})(\d{2})', w, re.IGNORECASE)
+    if m: return pd.Timestamp(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    return None
+
+VERDE_U  = PatternFill('solid', fgColor='92D051')
+AMARILLO_U = PatternFill('solid', fgColor='FFFF00')
+ROSA_U   = PatternFill('solid', fgColor='FF99CC')
+GRIS_U   = PatternFill('solid', fgColor='C0C0C0')
+TOL_U = 0.9
+DIAS_U = 3
+
+def cargar_sap_uyu(bio):
+    try: df_sap = pd.read_excel(bio, header=None, dtype=str)
+    except: bio.seek(0); df_sap = pd.read_excel(bio, header=None, dtype=str, engine='xlrd')
+    sap = []
+    _sap_start = _find_data_start(df_sap, 'fecha')
+    for i, row in df_sap.iterrows():
+        if i < _sap_start: continue
+        f = pd.to_datetime(row[0], dayfirst=True, errors='coerce')
+        if pd.isna(f): continue
+        com = str(row[6]).strip() if not nan_safe_u(row[6]) else ''
+        imp = to_float_u(row[33])
+        if is_dif_cambio_u(com):
+            sap.append(dict(er=i+1, f=f, doc=str(row[2]).strip() if not nan_safe_u(row[2]) else '',
+                            com=com, imp=imp, wiz=None, m=False, an=True, color=GRIS_U)); continue
+        if imp is None: continue
+        sap.append(dict(er=i+1, f=f, doc=str(row[2]).strip() if not nan_safe_u(row[2]) else '',
+                        com=com, imp=imp, wiz=extract_wiz_u(com), m=False, an=False, color=VERDE_U))
+    return sap
+
+def cargar_banco_uyu(bio):
+    try: df_b = pd.read_excel(bio, header=None, dtype=str)
+    except: bio.seek(0); df_b = pd.read_excel(bio, header=None, dtype=str, engine='xlrd')
+    bco = []
+    _bco_start = _find_data_start(df_b, 'header')
+    for i, row in df_b.iterrows():
+        if i < _bco_start: continue
+        f = pd.to_datetime(row[0], dayfirst=True, errors='coerce')
+        if pd.isna(f): continue
+        desc = str(row[1]).strip() if not nan_safe_u(row[1]) else ''
+        if 'saldo' in desc.lower(): continue
+        deb = to_float_u(row[7]); cre = to_float_u(row[8])
+        if deb and deb > 0: imp = -deb
+        elif cre and cre > 0: imp = cre
+        else: continue
+        bco.append(dict(er=i+1, f=f, desc=desc, imp=imp, m=False, color=VERDE_U))
+    return bco
+
+def conciliar_uyu(sap, bco):
+    # Anulados SAP
+    for r in sap:
+        if r['an']: continue
+        cl = r['com'].lower()
+        if ('cancelar' in cl or 'anular' in cl) and 'entrada para' in cl:
+            r['an'] = True
+            m2 = re.search(r'pago\s+\[?recibido\]?\s+(\d+)', cl)
+            if not m2: m2 = re.search(r'(\d{4,6})\s*$', r['com'].strip())
+            if m2:
+                num = m2.group(1)
+                for r2 in sap:
+                    if not r2['an'] and re.sub(r'\D','', r2['doc']) == num: r2['an'] = True
+
+    # Wiz individual
+    wg = defaultdict(list)
+    for si, sr in enumerate(sap):
+        if sr['an'] or sr['m']: continue
+        w = sr['wiz']
+        if w and not nan_safe_u(w): wg[w].append(si)
+
+    wiz_matched = set()
+    for w, idxs in wg.items():
+        total = sum(sap[i]['imp'] for i in idxs)
+        fs = wiz_date_u(w) or sap[idxs[0]]['f']
+        for bi, br in enumerate(bco):
+            if br['m']: continue
+            if abs(abs(br['imp']) - abs(total)) <= TOL_U and abs((br['f'] - fs).days) <= DIAS_U:
+                for si in idxs: sap[si]['m'] = True
+                bco[bi]['m'] = True; wiz_matched.add(w); break
+
+    # Wiz combinado
+    wiz_unmatched = {w: idxs for w, idxs in wg.items()
+                     if w not in wiz_matched and not sap[idxs[0]]['m']}
+    by_wiz_date_u = defaultdict(list)
+    for w, idxs in wiz_unmatched.items():
+        fd = wiz_date_u(w)
+        if fd: by_wiz_date_u[fd].append((w, idxs))
+    for fd, group in by_wiz_date_u.items():
+        all_idxs = [i for _, idxs in group for i in idxs if not sap[i]['m']]
+        if not all_idxs: continue
+        total = sum(sap[i]['imp'] for i in all_idxs)
+        for bi, br in enumerate(bco):
+            if br['m']: continue
+            if abs(abs(br['imp']) - abs(total)) <= TOL_U and abs((br['f'] - fd).days) <= DIAS_U:
+                for i in all_idxs: sap[i]['m'] = True; sap[i]['color'] = VERDE_U
+                bco[bi]['m'] = True; bco[bi]['color'] = VERDE_U; break
+
+    # Wiz + anulado + reemision
+    wg_full = defaultdict(list)
+    for si, sr in enumerate(sap):
+        w = sr['wiz']
+        if w and not nan_safe_u(w): wg_full[w].append(si)
+    for w, idxs in wg_full.items():
+        if all(sap[i]['m'] for i in idxs if not sap[i]['an']): continue
+        fecha_wiz = wiz_date_u(w) or sap[idxs[0]]['f']
+        docs_en_grupo = {re.sub(r'\D','', sap[i]['doc']) for i in idxs}
+        anulados_ref = []
+        for si_c, sr_c in enumerate(sap):
+            if not sr_c['an']: continue
+            m2 = re.search(r'(\d{4,6})\s*$', sr_c['com'].strip())
+            if not m2: continue
+            ref_num = m2.group(1)
+            if ref_num in docs_en_grupo:
+                for si_o in idxs:
+                    if re.sub(r'\D','', sap[si_o]['doc']) == ref_num:
+                        anulados_ref.append((si_c, si_o)); break
+        if not anulados_ref: continue
+        anulados_orig_idxs = {si_o for _, si_o in anulados_ref}
+        total_wiz_neto = sum(sap[i]['imp'] for i in idxs if i not in anulados_orig_idxs)
+        suelta_cands = [si for si, sr in enumerate(sap)
+                        if not sr['m'] and not sr['an']
+                        and (sr['wiz'] is None or nan_safe_u(sr['wiz']))
+                        and abs((sr['f'] - fecha_wiz).days) <= DIAS_U]
+        for si2 in suelta_cands:
+            total_real = total_wiz_neto + sap[si2]['imp']
+            for bi, br in enumerate(bco):
+                if br['m']: continue
+                if abs(abs(br['imp']) - abs(total_real)) <= TOL_U and abs((br['f'] - fecha_wiz).days) <= DIAS_U:
+                    for i in idxs: sap[i]['m'] = True; sap[i]['color'] = VERDE_U
+                    for si_c, _ in anulados_ref:
+                        sap[si_c]['an'] = False; sap[si_c]['m'] = True; sap[si_c]['color'] = VERDE_U
+                    sap[si2]['m'] = True; sap[si2]['color'] = VERDE_U
+                    bco[bi]['m'] = True; bco[bi]['color'] = VERDE_U; break
+            else: continue
+            break
+
+    # Sueldos
+    bco_sueldo_by_date_u = defaultdict(list)
+    for bi, br in enumerate(bco):
+        if not br['m'] and is_sueldo_bco_u(br['desc']) and br['imp'] < 0:
+            bco_sueldo_by_date_u[br['f'].date()].append(bi)
+    for sr in sap:
+        if sr['m'] or sr['an'] or not is_sueldo_sap_u(sr['com']): continue
+        imp_s = abs(sr['imp']); matched = False
+        for br in bco:
+            if br['m']: continue
+            if abs(abs(br['imp']) - imp_s) <= TOL_U and abs((br['f'] - sr['f']).days) <= DIAS_U:
+                sr['m'] = True; br['m'] = True; matched = True; break
+        if matched: continue
+        for dias_offset in range(0, DIAS_U + 1):
+            for sign in ([0] if dias_offset == 0 else [1, -1]):
+                target_date = (sr['f'] + pd.Timedelta(days=dias_offset * sign)).date()
+                cands = [bi for bi in bco_sueldo_by_date_u.get(target_date, []) if not bco[bi]['m']]
+                if not cands: continue
+                total = sum(abs(bco[bi]['imp']) for bi in cands)
+                if abs(total - imp_s) <= TOL_U:
+                    sr['m'] = True
+                    for bi in cands: bco[bi]['m'] = True
+                    matched = True; break
+            if matched: break
+        if matched: continue
+        def is_trf_sueldo_u(d):
+            if not isinstance(d, str): return False
+            du = d.upper()
+            return (is_sueldo_bco_u(d) or (du.startswith("TRF") and "PAGO A" not in du and "PAGO PROV" not in du))
+        cands_all = [bi for bi, br in enumerate(bco)
+                     if not br['m'] and abs((br['f'] - sr['f']).days) <= DIAS_U
+                     and br['imp'] < 0 and is_trf_sueldo_u(br['desc'])
+                     and not is_comision_u(br['desc'])]
+        if not cands_all: continue
+        total = sum(abs(bco[bi]['imp']) for bi in cands_all)
+        if abs(total - imp_s) <= TOL_U:
+            sr['m'] = True
+            for bi in cands_all: bco[bi]['m'] = True
+
+    # Entes
+    entes = ['ANTEL','BPS','BSE','UTE','OSE','MGAP']
+    for sr in sap:
+        if sr['m'] or sr['an'] or not is_ente_sap_u(sr['com']): continue
+        cu = sr['com'].upper()
+        ente = next((x for x in entes if x in cu), None)
+        if not ente: continue
+        cands = [bi for bi, br in enumerate(bco)
+                 if not br['m'] and abs((br['f'] - sr['f']).days) <= DIAS_U
+                 and ente in br['desc'].upper() and br['imp'] < 0]
+        if not cands: continue
+        if abs(sum(abs(bco[bi]['imp']) for bi in cands) - abs(sr['imp'])) <= TOL_U:
+            sr['m'] = True
+            for bi in cands: bco[bi]['m'] = True
+
+    # Individual 1:1 antes del inverso
+    for sr in sap:
+        if sr['m'] or sr['an']: continue
+        for br in bco:
+            if br['m']: continue
+            if abs(abs(br['imp']) - abs(sr['imp'])) <= TOL_U and abs((br['f'] - sr['f']).days) <= DIAS_U:
+                sr['m'] = True; br['m'] = True; break
+
+    # Inverso
+    gb = defaultdict(list)
+    for bi, br in enumerate(bco):
+        if br['m']: continue
+        gb[(br['f'].date(), br['desc'])].append(bi)
+    for sr in sap:
+        if sr['m'] or sr['an']: continue
+        for (fd, d2), idxs in list(gb.items()):
+            if abs((fd - sr['f'].date()).days) > DIAS_U: continue
+            unm = [bi for bi in idxs if not bco[bi]['m']]
+            if not unm: continue
+            if abs(sum(abs(bco[bi]['imp']) for bi in unm) - abs(sr['imp'])) <= TOL_U:
+                sr['m'] = True
+                for bi in unm: bco[bi]['m'] = True; break
+
+    return sap, bco
+
+def escribir_sap_uyu(sap):
+    wb = Workbook(); ws = wb.active; ws.title = 'SAP'
+    ws.append(['Fcha Contab.', 'N\u00ba Doc', 'Comentarios', 'Sdo Vencido ME'])
+    ws.append(['', '', '', ''])
+    for r in sap:
+        ws.append([r['f'], r['doc'], r['com'], r['imp']])
+        er = ws.max_row
+        ws.cell(row=er, column=1).number_format = DATE_FMT
+        c = ws.cell(row=er, column=4)
+        if r['an']: c.fill = GRIS_U
+        elif r['m']: c.fill = r['color']
+        else: c.fill = ROSA_U
+    ws.column_dimensions['A'].width = 14; ws.column_dimensions['B'].width = 14
+    ws.column_dimensions['C'].width = 55; ws.column_dimensions['D'].width = 18
+    return wb_to_bytes(wb)
+
+def escribir_banco_uyu(bco):
+    wb = Workbook(); ws = wb.active; ws.title = 'Banco'
+    ws.append(['Fecha', 'Descripcion', '', '', '', '', '', 'Debito', 'Credito'])
+    tc = []
+    for r in bco:
+        deb = abs(r['imp']) if r['imp'] < 0 else ''
+        cre = r['imp'] if r['imp'] > 0 else ''
+        ws.append([r['f'], r['desc'], '', '', '', '', '', deb, cre])
+        er = ws.max_row
+        ws.cell(row=er, column=1).number_format = DATE_FMT
+        col = 8 if r['imp'] < 0 else 9
+        if is_comision_u(r['desc']): ws.cell(row=er, column=col).fill = AMARILLO_U; tc.append(abs(r['imp']))
+        elif r['m']: ws.cell(row=er, column=col).fill = r['color']
+        else: ws.cell(row=er, column=col).fill = ROSA_U
+    if tc:
+        lr = ws.max_row + 2
+        ws.cell(row=lr, column=1, value='TOTAL COMISIONES').fill = AMARILLO_U
+        ws.cell(row=lr, column=8, value=round(sum(tc), 2)).fill = AMARILLO_U
+    ws.column_dimensions['A'].width = 14; ws.column_dimensions['B'].width = 45
+    ws.column_dimensions['H'].width = 14; ws.column_dimensions['I'].width = 14
+    return wb_to_bytes(wb)
+
+# ------------------- EUR -------------------------------------------------------
+def cargar_sap_eur(bio):
+    try:
+        df = pd.read_excel(bio, header=None)
+    except Exception:
+        bio.seek(0)
+        df = pd.read_excel(bio, header=None, engine='xlrd')
+    rows = []
+    _eur_sap_start = _find_data_start(df, 'fecha')
+    for i in range(_eur_sap_start, len(df)):
+        row = df.iloc[i]
+        f = row[0]
+        if pd.isna(f): continue
+        try: f = pd.Timestamp(f)
+        except: continue
+        nro_doc = str(row[2]) if pd.notna(row[2]) else ''
+        com = str(row[6]) if pd.notna(row[6]) else ''
+        me_val = row[33]
+        imp = None if pd.isna(me_val) else float(me_val)
+        wiz = get_wiz(com) or get_wiz(nro_doc)
+        rows.append(dict(er=i+1, f=f, nro_doc=nro_doc, com=com, imp=imp, wiz=wiz, m=False, color=None))
+    return rows
+
+def cargar_banco_eur(bio):
+    try:
+        df = pd.read_excel(bio, header=None)
+    except Exception:
+        bio.seek(0)
+        df = pd.read_excel(bio, header=None, engine='xlrd')
+    rows = []
+    _eur_bco_start = _find_data_start(df, 'header')
+    for i in range(_eur_bco_start, len(df)):
+        row = df.iloc[i]
+        f = row[0]
+        if pd.isna(f): continue
+        try: f = pd.Timestamp(f)
+        except: continue
+        desc = str(row[1]) if pd.notna(row[1]) else ''
+        n = norm(desc)
+        if 'saldo inicial' in n or 'saldo final' in n: continue
+        deb = row[7] if pd.notna(row[7]) else None
+        cre = row[8] if pd.notna(row[8]) else None
+        if deb is not None and float(deb) != 0: imp = -abs(float(deb))
+        elif cre is not None and float(cre) != 0: imp = abs(float(cre))
+        else: continue
+        rows.append(dict(er=i+1, f=f, desc=desc, imp=imp, debito=deb, credito=cre, m=False, color=None))
+    return rows
+
+def conciliar_eur(sap, banco):
+    banco_used = set()
+
+    # Anulados
+    cancel_pat = re.compile(r'(cancelar|anular).*entrada para n[u\u00fa]mero de pago', re.IGNORECASE)
+    doc_refs = {}
+    for i, r in enumerate(sap):
+        if cancel_pat.search(r['com']):
+            m = re.search(r'(\d{4,})', r['com'])
+            if m: doc_refs.setdefault(m.group(1), []).append(i)
+    gris_idx = set()
+    for doc_num, idxs in doc_refs.items():
+        for i, r in enumerate(sap):
+            if doc_num in r['nro_doc']: gris_idx.add(i)
+        for i in idxs: gris_idx.add(i)
+    for i in gris_idx: sap[i]['m'] = True; sap[i]['color'] = GRIS
+
+    # Dif cambio -> gris
+    for r in sap:
+        if r['m']: continue
+        if r['imp'] is None or (isinstance(r['imp'], float) and pd.isna(r['imp'])):
+            r['m'] = True; r['color'] = GRIS
+
+    # Comisiones banco
+    for bi, br in enumerate(banco):
+        if is_comision(br['desc']): br['m'] = True; br['color'] = AMARILLO; banco_used.add(bi)
+
+    # Wiz
+    wg = defaultdict(list)
+    for si, sr in enumerate(sap):
+        if sr['m']: continue
+        if has_wiz(sr['wiz']): wg[sr['wiz']].append(si)
+    for w, idxs in wg.items():
+        total = sum(sap[i]['imp'] for i in idxs)
+        fs = wiz_fecha(w) or sap[idxs[0]]['f']
+        for bi, br in enumerate(banco):
+            if bi in banco_used: continue
+            if abs(abs(br['imp']) - abs(total)) <= TOL and abs((br['f']-fs).days) <= DIAS:
+                for si in idxs: sap[si]['m'] = True; sap[si]['color'] = VERDE
+                br['m'] = True; br['color'] = VERDE; banco_used.add(bi); break
+
+    # Inverso Wiz
+    for si, sr in enumerate(sap):
+        if sr['m']: continue
+        if sr['imp'] is None: continue
+        grupos = {}
+        for bi, br in enumerate(banco):
+            if bi in banco_used: continue
+            if br['f'] != sr['f']: continue
+            key = (br['f'], norm(br['desc']))
+            grupos.setdefault(key, []).append(bi)
+        for key, bis in grupos.items():
+            total_bco = sum(banco[bi]['imp'] for bi in bis)
+            if abs(sr['imp'] - total_bco) <= TOL:
+                sr['m'] = True; sr['color'] = VERDE
+                for bi in bis: banco_used.add(bi); banco[bi]['m'] = True; banco[bi]['color'] = VERDE
+                break
+
+    # Match individual
+    for si, sr in enumerate(sap):
+        if sr['m']: continue
+        if sr['imp'] is None: continue
+        for bi, br in enumerate(banco):
+            if bi in banco_used: continue
+            diff_imp = abs(sr['imp'] - br['imp'])
+            if diff_imp > TOL: continue
+            if sr['f'] and br['f']:
+                diff_d = abs((sr['f'] - br['f']).days)
+                if diff_d <= DIAS:
+                    sr['m'] = True; sr['color'] = VERDE
+                    br['m'] = True; br['color'] = VERDE
+                    banco_used.add(bi); break
+
+    # Rosa resto
+    for r in sap:
+        if not r['m']: r['color'] = ROSA
+    for r in banco:
+        if not r['m']: r['color'] = ROSA
+    return sap, banco
+
+def escribir_sap_eur(sap, bio_orig):
+    wb = Workbook(); ws = wb.active; ws.title = 'SAP'
+    ws.append(['Fcha Contab.', 'N\u00ba Doc', 'Comentarios', 'Sdo Vencido ME'])
+    ws.append(['', '', '', ''])
+    for r in sap:
+        ws.append([r['f'], r['nro_doc'], r['com'], r['imp']])
+        er = ws.max_row
+        ws.cell(row=er, column=1).number_format = DATE_FMT
+        if r['color']: ws.cell(row=er, column=4).fill = r['color']
+    ws.column_dimensions['A'].width = 14; ws.column_dimensions['B'].width = 14
+    ws.column_dimensions['C'].width = 50; ws.column_dimensions['D'].width = 18
+    return wb_to_bytes(wb)
+
+def escribir_banco_eur(banco, bio_orig):
+    wb = Workbook(); ws = wb.active; ws.title = 'Banco'
+    ws.append(['Fecha', 'Descripcion', '', 'Nro Doc', '', '', '', 'Debito', 'Credito'])
+    tc = []
+    for r in banco:
+        deb = abs(r['imp']) if r['imp'] < 0 else ''
+        cre = r['imp'] if r['imp'] > 0 else ''
+        ws.append([r['f'], r['desc'], '', '', '', '', '', deb, cre])
+        er = ws.max_row
+        ws.cell(row=er, column=1).number_format = DATE_FMT
+        col = 8 if r['imp'] < 0 else 9
+        if r['color']:
+            ws.cell(row=er, column=col).fill = r['color']
+        if r['color'] is AMARILLO: tc.append(abs(r['imp']))
+    if tc:
+        lr = ws.max_row + 2
+        ws.cell(row=lr, column=1, value='TOTAL COMISIONES').fill = AMARILLO
+        ws.cell(row=lr, column=8, value=round(sum(tc), 2)).fill = AMARILLO
+    ws.column_dimensions['A'].width = 14; ws.column_dimensions['B'].width = 45
+    ws.column_dimensions['H'].width = 14; ws.column_dimensions['I'].width = 14
+    return wb_to_bytes(wb)
+
+# ------------------- DISPATCHER -----------------------------------------------
+try:
+    sap_bio = bytes_to_bytesio(sap_bytes)
+    bco_bio = bytes_to_bytesio(bco_bytes)
+
+    if mode == 'USD':
+        sap = cargar_sap_usd(sap_bio)
+        banco = cargar_banco_usd(bco_bio)
+        sap_col, bco_col = conciliar_usd(sap, banco)
+        sap_out = escribir_sap_usd(sap, sap_col)
+        bco_out = escribir_banco_usd(banco, bco_col)
+        sap_verde = sum(1 for c in sap_col.values() if c == VERDE_USD)
+        sap_rosa  = sum(1 for c in sap_col.values() if c == ROSA_USD)
+        sap_gris  = sum(1 for c in sap_col.values() if c == GRIS_USD)
+        bco_verde = sum(1 for c in bco_col.values() if c == VERDE_USD)
+        bco_am    = sum(1 for c in bco_col.values() if c == AMARILLO_USD)
+        bco_rosa  = sum(1 for c in bco_col.values() if c == ROSA_USD)
+        total_com = round(sum(abs(brow['importe']) for _, brow in banco.iterrows() if bco_col.get(brow['orig_idx']) == AMARILLO_USD), 2)
+        sin_sap = [f"{row['fecha'].date()} | {str(row['ndoc'])[:10]} | {str(row['comentarios'])[:40]} | {row['importe']:,.2f}"
+                   for _, row in sap.iterrows() if sap_col.get(row['orig_idx']) == ROSA_USD]
+        sin_bco = [f"{brow['fecha'].date()} | {str(brow['descripcion'])[:40]} | {brow['importe']:,.2f}"
+                   for _, brow in banco.iterrows() if bco_col.get(brow['orig_idx']) == ROSA_USD]
+
+    elif mode == 'UYU':
+        sap_list = cargar_sap_uyu(sap_bio)
+        bco_list = cargar_banco_uyu(bco_bio)
+        sap_list, bco_list = conciliar_uyu(sap_list, bco_list)
+        sap_out = escribir_sap_uyu(sap_list)
+        bco_out = escribir_banco_uyu(bco_list)
+        val = [r for r in sap_list if not r['an']]
+        sap_verde = sum(1 for r in val if r['m'])
+        sap_rosa  = sum(1 for r in val if not r['m'])
+        sap_gris  = sum(1 for r in sap_list if r['an'])
+        bco_verde = sum(1 for r in bco_list if r['m'] and not is_comision_u(r['desc']))
+        bco_am    = sum(1 for r in bco_list if is_comision_u(r['desc']))
+        bco_rosa  = sum(1 for r in bco_list if not r['m'] and not is_comision_u(r['desc']))
+        total_com = sum(abs(r['imp']) for r in bco_list if is_comision_u(r['desc']))
+        sin_sap = [f"{r['f'].date()} | {r['doc'][:10]} | {r['com'][:40]} | {r['imp']:,.2f}" for r in val if not r['m']]
+        sin_bco = [f"{r['f'].date()} | {r['desc'][:40]} | {r['imp']:,.2f}" for r in bco_list if not r['m'] and not is_comision_u(r['desc'])]
+
+    elif mode == 'EUR':
+        sap_list = cargar_sap_eur(sap_bio)
+        bco_list = cargar_banco_eur(bco_bio)
+        sap_list, bco_list = conciliar_eur(sap_list, bco_list)
+        sap_out = escribir_sap_eur(sap_list, None)
+        bco_out = escribir_banco_eur(bco_list, None)
+        sap_verde = sum(1 for r in sap_list if r['color'] == VERDE)
+        sap_rosa  = sum(1 for r in sap_list if r['color'] == ROSA)
+        sap_gris  = sum(1 for r in sap_list if r['color'] == GRIS)
+        bco_verde = sum(1 for r in bco_list if r['color'] == VERDE)
+        bco_am    = sum(1 for r in bco_list if r['color'] == AMARILLO)
+        bco_rosa  = sum(1 for r in bco_list if r['color'] == ROSA)
+        total_com = sum(abs(r['imp']) for r in bco_list if r['color'] == AMARILLO)
+        sin_sap = [f"{r['f'].date()} | {r['nro_doc'][:10]} | {r['com'][:40]} | {r['imp']}" for r in sap_list if r['color'] == ROSA]
+        sin_bco = [f"{r['f'].date()} | {r['desc'][:40]} | {r['imp']:,.2f}" for r in bco_list if r['color'] == ROSA]
+
+    result = dict(
+        sap_out=sap_out, bco_out=bco_out,
+        sap_verde=sap_verde, sap_rosa=sap_rosa, sap_gris=sap_gris,
+        bco_verde=bco_verde, bco_amarillo=bco_am, bco_rosa=bco_rosa,
+        total_com=total_com,
+        sin_match_sap=sin_sap, sin_match_bco=sin_bco,
+        error=None
+    )
+except Exception as e:
+    import traceback
+    result = dict(error=str(e) + chr(10) + traceback.format_exc(),
+                  sap_out=[], bco_out=[], sap_verde=0, sap_rosa=0, sap_gris=0,
+                  bco_verde=0, bco_amarillo=0, bco_rosa=0, total_com=0,
+                  sin_match_sap=[], sin_match_bco=[])
+
+result
+
+
+
+
+
+
+
+
+
+`;
+</script>
+</body>
+</html>
